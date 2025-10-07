@@ -3,14 +3,10 @@ import aiosqlite
 import requests
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
-from aiogram.utils import executor
 
-# ========================
-# Config
-# ========================
 API_TOKEN = "8499950969:AAH7FlZ9D0Mr1NU2h3_Qitd0xGwRdAzBSvA"
 BASE_URL = "https://instagram-api.coder-abdulaziz.workers.dev/"
-ADMIN_ID = 1306019543  # <-- Bu yerga Telegram ID ni yozing
+ADMIN_ID = 1306019543
 
 logging.basicConfig(level=logging.INFO)
 
@@ -19,16 +15,10 @@ dp = Dispatcher()
 
 DB_PATH = "users.db"
 
-# ========================
-# Debug log
-# ========================
 def debug_log(data):
     with open("debug.txt", "a", encoding="utf-8") as f:
         f.write(str(data) + "\n\n")
 
-# ========================
-# DB init
-# ========================
 async def init_db():
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute("""
@@ -40,9 +30,6 @@ async def init_db():
         """)
         await db.commit()
 
-# ========================
-# Add user
-# ========================
 async def add_user(chat_id, username=None):
     async with aiosqlite.connect(DB_PATH) as db:
         try:
@@ -51,9 +38,6 @@ async def add_user(chat_id, username=None):
         except Exception as e:
             logging.error(f"DB error: {e}")
 
-# ========================
-# /start
-# ========================
 @dp.message(Command(commands=["start"]))
 async def start_cmd(message: types.Message):
     await add_user(message.chat.id, message.from_user.username)
@@ -62,9 +46,6 @@ async def start_cmd(message: types.Message):
         "/info <username>\n/posts <username>\n/stories <username>"
     )
 
-# ========================
-# /info <username>
-# ========================
 @dp.message(Command(commands=["info"]))
 async def info_cmd(message: types.Message):
     parts = message.text.split()
@@ -92,9 +73,6 @@ async def info_cmd(message: types.Message):
     )
     await bot.send_photo(chat_id=message.chat.id, photo=data['profile_pic'], caption=msg)
 
-# ========================
-# /posts <username>
-# ========================
 @dp.message(Command(commands=["posts"]))
 async def posts_cmd(message: types.Message):
     parts = message.text.split()
@@ -119,9 +97,6 @@ async def posts_cmd(message: types.Message):
         else:
             await bot.send_photo(chat_id=message.chat.id, photo=post["image_url"], caption=f"{caption}\n❤️ {post['like_count']} | 💬 {post['comment_count']}")
 
-# ========================
-# /stories <username>
-# ========================
 @dp.message(Command(commands=["stories"]))
 async def stories_cmd(message: types.Message):
     parts = message.text.split()
@@ -145,9 +120,6 @@ async def stories_cmd(message: types.Message):
             else:
                 await bot.send_photo(chat_id=message.chat.id, photo=item["image_url"])
 
-# ========================
-# Admin panel: /users va /broadcast
-# ========================
 @dp.message(Command(commands=["users"]))
 async def admin_users(message: types.Message):
     if message.from_user.id != ADMIN_ID:
@@ -177,10 +149,11 @@ async def admin_broadcast(message: types.Message):
             logging.error(f"Xabar yuborilmadi {row[0]}: {e}")
     await message.reply("Xabar barcha foydalanuvchilarga yuborildi!")
 
-# ========================
-# Start bot
-# ========================
 if __name__ == "__main__":
     import asyncio
-    asyncio.run(init_db())
-    executor.start_polling(dp, skip_updates=True)
+
+    async def main():
+        await init_db()
+        await dp.start_polling(bot, skip_updates=True)
+
+    asyncio.run(main())
