@@ -4,7 +4,7 @@ import requests
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 
-API_TOKEN = "8499950969:AAH7FlZ9D0Mr1NU2h3_Qitd0xGwRdAzBSvA"
+API_TOKEN = "8499950969:AAFbBmeJr3I4IgjFXfcmYJzjHIlzZ5jYQ6U"
 BASE_URL = "https://instagram-api.coder-abdulaziz.workers.dev/"
 ADMIN_ID = 1306019543
 
@@ -149,11 +149,11 @@ async def admin_broadcast(message: types.Message):
             logging.error(f"Xabar yuborilmadi {row[0]}: {e}")
     await message.reply("Xabar barcha foydalanuvchilarga yuborildi!")
 
+import asyncio
+
+async def main():
+    await init_db()
+    await dp.start_polling(bot, skip_updates=True)
+
 if __name__ == "__main__":
-    import asyncio
-
-    async def main():
-        await init_db()
-        await dp.start_polling(bot, skip_updates=True)
-
     asyncio.run(main())
